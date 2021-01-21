@@ -1,31 +1,29 @@
-const List<String> currenciesList = [
-  'AUD',
-  'BRL',
-  'CAD',
-  'CNY',
-  'EUR',
-  'GBP',
-  'HKD',
-  'IDR',
-  'ILS',
-  'INR',
-  'JPY',
-  'MXN',
-  'NOK',
-  'NZD',
-  'PLN',
-  'RON',
-  'RUB',
-  'SEK',
-  'SGD',
-  'USD',
-  'ZAR'
-];
+import 'package:bitcoin_ticker/constants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'constants.dart';
 
-const List<String> cryptoList = [
-  'BTC',
-  'ETH',
-  'LTC',
-];
+class CoinData {
+  String _url;
+  Future getCoinData(String selectedCurrency) async {
+    Map<String, String> cryptoPrices = {};
 
-class CoinData {}
+    for (String crypto in kCryptoList) {
+      _url = '$kAPIUrl/$crypto/$selectedCurrency?apikey=$kAPIKey';
+
+      http.Response response = await http.get(_url);
+
+      if (response.statusCode == 200) {
+        String data = response.body;
+        var decodedData = jsonDecode(data);
+        var coinRate = decodedData['rate'];
+        String amount = coinRate.toStringAsFixed(0);
+        cryptoPrices[crypto] = amount;
+        //return amount;
+      } else {
+        print(response.statusCode);
+      }
+    }
+    return cryptoPrices;
+  }
+}
